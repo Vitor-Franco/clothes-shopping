@@ -1,6 +1,6 @@
 import Image from "next/future/image";
 import { stripe } from "../lib/stripe";
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 import { useKeenSlider } from "keen-slider/react";
 import { HomeContainer, Product } from "../styles/pages/home";
 
@@ -40,7 +40,9 @@ export default function Home({ products }: HomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+// Gera uma versão da página na qual os dados são pré-renderizados em build time
+// Sendo assim, não é necessário fazer uma requisição para a API toda vez que a página for acessada
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ["data.default_price"],
   });
@@ -60,5 +62,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
     props: {
       products,
     },
+    revalidate: 60 * 60 * 2, // 2 hours
   };
 };
